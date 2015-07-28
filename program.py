@@ -15,6 +15,9 @@ def go(query = 'moutain', verbose = True):
   """
   BASE_URL = 'http://ajax.googleapis.com/ajax/services/search/images?'\
              'v=1.0&q=' + query + '&start=%d'
+  PROXY = {'http':'http://192.168.27.1:80'} # Hard coded but whatever
+  HEADERS = {'User-Agent' : 'Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.89 Safari/537.36'} # Some lying needed to convince the proxy :)
+
   #http://ajax.googleapis.com/ajax/services/search/images?v=1.0&q=mountains&start=4
   SUCCESSFUL = False
   while not SUCCESSFUL:
@@ -22,15 +25,15 @@ def go(query = 'moutain', verbose = True):
     image = randrange(0,4)  # The image on the page, there's 4 images on each
     if verbose: print('getting image', image, 'on page', page)
     try:
-      r = get(BASE_URL % page)
-      raise Exception
+      r = get(BASE_URL % page, proxies=PROXY, headers=HEADERS)
+      #raise Exception
     except Exception as e:
       if verbose: print("can't connect to the internet", e)
       return False
-      
+    print(r)
     url = loads(r.text)['responseData']['results'][image]['unescapedUrl']
     try:
-      image_r = get(url)
+      image_r = get(url, proxies=PROXY, headers=HEADERS)
       file = open('wallpaper.jpg', 'w')
       Image.open(BytesIO(image_r.content)).save(file, 'JPEG')
       SUCCESSFUL = True
